@@ -27,6 +27,9 @@ from weeutil.weeutil import to_bool
 
 log = logging.getLogger(__name__)
 
+# Target Ogoxe Weather Platform Wunderground-like API URL
+OGOXE_API_URL = 'https://preprod-q56d7yf0.ogoxe.com/weather-station/test'
+
 #-----------------------------------------------------------------
 #         OgoXe (Wunderground-like) uploader
 #-----------------------------------------------------------------
@@ -46,15 +49,12 @@ class OgoxeUploader(weewx.restx.StdWunderground):
         http://wiki.wunderground.com/index.php/PWS_-_Upload_Protocol
     """
 
-    # bogus URLs to force use of mandatory 'server_url' in weewx.conf
-    pws_url = 'https://preprod-q56d7yf0.ogoxe.com/weather-station/test'
-
     def __init__(self, engine, config_dict):
         super(OgoxeUploader, self).__init__(engine, config_dict)
 
-        # this uploader requires 'station', 'password' and 'server_url'
+        # This uploader requires 'station', 'password'
         _ambient_dict = weewx.restx.get_site_dict(
-            config_dict, 'OgoxeUploader', 'station', 'password', 'server_url')
+            config_dict, 'OgoxeUploader', 'station', 'password')
         if _ambient_dict is None:
             log.error("OgoxeUploader: Missing required configuration. "
                       "Please ensure [StdRESTful][[OgoxeUploader]] is properly configured "
@@ -64,7 +64,7 @@ class OgoxeUploader(weewx.restx.StdWunderground):
         log.info("OgoxeUploader: Configuration loaded for station %s", 
                  _ambient_dict.get('station', 'UNKNOWN'))
 
-        # server_url is already in _ambient_dict from get_site_dict
+        # server_url is hardcoded, and not provided _ambient_dict from get_site_dict
         log.debug("OgoxeUploader server_url: %s", _ambient_dict.get('server_url'))
 
         # Get the manager dictionary:
@@ -82,6 +82,7 @@ class OgoxeUploader(weewx.restx.StdWunderground):
                 self.archive_queue,
                 _manager_dict,
                 protocol_name="OgoxeUploader",
+                server_url=OGOXE_API_URL,
                 **_ambient_dict)
             self.archive_thread.start()
             self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
