@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-02-24
+
+### Changed by Ogoxe developers
+- First release for Ogoxe Wunderground-like uploader
+- Made the server_url parameter non-modifiable, pointing to OgoXe weather platform
+
 ## [1.0.0] - 2026-01-04
 
 ### Changed by Sigi Meisenbichler

@@ -1,11 +1,13 @@
 #-----------------------------------------------------------------
-#         custom WundergroundLike uploader v1.0.0
+#         WeeWX OgoXe uploader v1.0.1
+#
+#    Copyright (c) 2026 OgoXe developers <dev@ogoxe.com>
 #
 #    Copyright (c) 2026 Sigi Meisenbichler <s.meisen@icloud.com>
 #
 #    Copyright (c) 2025 Vince Skahan <vinceskahan@gmail.com>
 #
-# This is derived almost verbatim from weewx 5.2.0 restx.py 
+# This is derived almost verbatim from smeisens/weewx-wundergroundlike (Github), weewx 5.2.0 restx.py 
 # which is:
 #
 #    Copyright (c) 2009-2024 Tom Keffer <tkeffer@gmail.com>
@@ -26,18 +28,14 @@ from weeutil.weeutil import to_bool
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------
-#         custom WundergroundLike uploader
+#         OgoXe (Wunderground-like) uploader
 #-----------------------------------------------------------------
 
-class WundergroundLike(weewx.restx.StdWunderground):
-    """Custom class to upload data to Weather Underground compatible servers.
-
-    This class is designed for use with non-WU servers that use a WU-compatible API,
-    such as HetWeerActueel.
+class OgoxeUploader(weewx.restx.StdWunderground):
+    """Custom class to upload data to OgoXe's Weather Underground compatible servers.
 
     Differences from the weewx Wunderground class:
-    - set default URLs to bogus values
-    - supersede pws_url with mandatory 'server_url' from [[WundergroundLike]]
+    - default URL is hardcoded and immutable
     - explicitly point to weewx.restx.foo for a few items
     - slightly different logging output to reflect this class's name
     - slightly different/added logging
@@ -49,25 +47,25 @@ class WundergroundLike(weewx.restx.StdWunderground):
     """
 
     # bogus URLs to force use of mandatory 'server_url' in weewx.conf
-    pws_url = 'http://please.set.server_url.in.weewx.conf'
+    pws_url = 'https://preprod-q56d7yf0.ogoxe.com/weather-station/test'
 
     def __init__(self, engine, config_dict):
-        super(WundergroundLike, self).__init__(engine, config_dict)
+        super(OgoxeUploader, self).__init__(engine, config_dict)
 
         # this uploader requires 'station', 'password' and 'server_url'
         _ambient_dict = weewx.restx.get_site_dict(
-            config_dict, 'WundergroundLike', 'station', 'password', 'server_url')
+            config_dict, 'OgoxeUploader', 'station', 'password', 'server_url')
         if _ambient_dict is None:
-            log.error("WundergroundLike: Missing required configuration. "
-                      "Please ensure [StdRESTful][[WundergroundLike]] is properly configured "
-                      "with 'station', 'password', and 'server_url' in weewx.conf")
+            log.error("OgoxeUploader: Missing required configuration. "
+                      "Please ensure [StdRESTful][[OgoxeUploader]] is properly configured "
+                      "with 'station', and 'password' in weewx.conf")
             return
 
-        log.info("WundergroundLike: Configuration loaded for station %s", 
+        log.info("OgoxeUploader: Configuration loaded for station %s", 
                  _ambient_dict.get('station', 'UNKNOWN'))
 
         # server_url is already in _ambient_dict from get_site_dict
-        log.debug("WundergroundLike server_url: %s", _ambient_dict.get('server_url'))
+        log.debug("OgoxeUploader server_url: %s", _ambient_dict.get('server_url'))
 
         # Get the manager dictionary:
         _manager_dict = weewx.manager.get_manager_dict_from_config(
@@ -83,11 +81,11 @@ class WundergroundLike(weewx.restx.StdWunderground):
             self.archive_thread = weewx.restx.AmbientThread(
                 self.archive_queue,
                 _manager_dict,
-                protocol_name="WundergroundLike",
+                protocol_name="OgoxeUploader",
                 **_ambient_dict)
             self.archive_thread.start()
             self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
-            log.info("WundergroundLike: Data for station %s will be posted",
+            log.info("OgoxeUploader: Data for station %s will be posted",
                      _ambient_dict.get('station', 'UNKNOWN'))
 
     def new_archive_record(self, event):
