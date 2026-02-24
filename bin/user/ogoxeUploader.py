@@ -28,7 +28,7 @@ from weeutil.weeutil import to_bool
 log = logging.getLogger(__name__)
 
 # Target Ogoxe Weather Platform Wunderground-like API URL
-OGOXE_API_URL = 'https://preprod-q56d7yf0.ogoxe.com/weather-station/test'
+OGOXE_API_URL = 'https://preprod-q56d7yf0.ogoxe.com/weather-station/weewx-uploader'
 
 #-----------------------------------------------------------------
 #         OgoXe (Wunderground-like) uploader
